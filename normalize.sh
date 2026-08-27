@@ -14,5 +14,5 @@ podman pull "$1"
 podman save "$1" -o "$2"
 
 # Normalize the tarball in a container (so that Windows works too)
-podman run --rm -v "$PWD:/data" -w /data debian:bookworm bash -c "apt update && apt install -y tar && chmod +x normalize_impl.sh && /data/normalize_impl.sh /data/$2"
+podman run --rm -v "$PWD:/data" -w /data debian:bookworm bash -c "chmod +x normalize_impl.sh && ls -l /data && /data/normalize_impl.sh /data/$2"
 sha256sum "$2" > "$2.sha256"

@@ -4,7 +4,8 @@ This script can be used to modify Docker images into reproducible tar files, all
 
 ## Setup
 
-You need Podman to use this tool. It generates identical tar files between Windows and Linux hosts.
+You need Podman to use this tool. It generates content identical tar files between Windows and Linux hosts.
+This script then normalizes the tar metadata.
 
 ## Usage
 
