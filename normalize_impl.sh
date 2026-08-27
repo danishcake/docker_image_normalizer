@@ -1,21 +1,27 @@
-#!/bin/sh
+#!/bin/bash
 # See https://github.com/podman-container-tools/podman/issues/14978
-set -eu
+set -euo pipefail
 
-tmpd=/tmp/repackage-tar.$$
+readonly TMPD=/tmp/repackage-tar.$$
+readonly INPUT=$1; shift
 
-f=$1; shift
+mkdir "$TMPD"
 
-mkdir "$tmpd"
-tar -tf "$f" | sort >"$tmpd/before"
+# Extract a filename list and sort it
+tar -tf "$INPUT" | sort >"$TMPD/sorted_files"
 
-if grep -q ^/ <"$tmpd/before"; then
-        echo >&2 'Some records have absolute paths'
-        exit 1
+# Check there are no absolute paths in the tarball, as this will break the re-packaging
+if grep -q ^/ <"$TMPD/sorted_files"; then
+    echo >&2 'Some records have absolute paths'
+    exit 1
 fi
 
-mkdir "$tmpd/data"
-tar -C "$tmpd/data" -xf "$f"
-tar -C "$tmpd/data" --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner \
+# Extract and repackage the tarball with normalized timestamps, owners, and group IDs
+echo "Repackaging"
+mkdir "$TMPD/data"
+tar -C "$TMPD/data" -xf "$INPUT"
+tar -C "$TMPD/data" --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner \
     --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime \
-    -cf "$f" --no-recursion --verbatim-files-from -T "$tmpd/before"
+    -cf ${INPUT} --no-recursion --verbatim-files-from -T "$TMPD/sorted_files"
+
+echo "Done"

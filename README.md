@@ -10,5 +10,8 @@ This script then normalizes the tar metadata.
 ## Usage
 
 ```bash
-./normalize.sh python:3.12.13 python_3.12.13.tar
+./normalize.sh python:3.12.13
+# Write python_3.12.13.tar, python_3.12.13.tar.gz and corresponding .sha256 files
 ```
+
+You may want to tone down the default -9 compression in normalize_impl.sh
